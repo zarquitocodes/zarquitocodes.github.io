@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Para Itzel ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b0b12;
+      --muted: #c9c9d4;
+      --text: #ffffff;
+      --morado: #7c3aed;
+      --morado-claro: #a78bfa;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background: radial-gradient(1200px 600px at 15% 10%, rgba(124,58,237,.18), transparent),
+                  radial-gradient(1200px 600px at 85% 0%, rgba(236,72,153,.12), transparent),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.6;
+      display:flex;flex-direction:column;min-height:100vh;
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    }
+    header{padding:1.2rem;text-align:center;font-weight:800;background:#120f1a;border-bottom:1px solid rgba(167,139,250,.25)}
+    h1{margin:0; font-family:'Dancing Script', cursive; font-weight:700; font-size: clamp(40px, 8vw, 86px); letter-spacing:.6px; color:#fff; text-shadow:0 8px 24px rgba(124,58,237,.55), 0 0 6px rgba(167,139,250,.6);}
+    .typewrap{display:inline-block;position:relative}
+    .caret{display:inline-block;width:2px;height:1em;background:var(--morado-claro);margin-left:6px;animation:blink .9s steps(1,end) infinite}
+    @keyframes blink{50%{opacity:.2}}
+    .lead{max-width:920px;margin:1rem auto;opacity:0;transform:translateY(8px);transition:.8s;font-size:clamp(16px,2.6vw,20px);padding:0 16px}
+    .lead.show{opacity:1;transform:none}
+    .btnJuego{display:none;margin:1.5rem auto 0;padding:1rem 2rem;font-size:18px;border:none;border-radius:14px;background:var(--morado);color:#fff;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.35)}
+    #gameArea{display:none;text-align:center}
+    canvas{background:#222;margin-top:10px;border:2px solid var(--morado-claro);border-radius:10px}
+    #pregunta{display:none;text-align:center;margin-top:1rem}
+    .opciones button{margin:.6rem;padding:.8rem 1.4rem;border:none;border-radius:12px;cursor:pointer}
+    .si{background:var(--morado);color:#fff}
+    .no{background:transparent;border:1px solid var(--morado-claro);color:var(--morado-claro)}
+    #mensajeFinal{display:none;text-align:center;margin:1rem auto;padding:0 16px}
+    #mensajeFinal img{max-width:220px;margin-top:1rem;border-radius:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span class="typewrap"><span id="typeTarget"></span><span class="caret"></span></span></h1>
+  </header>
+
+  <p id="nextMessage" class="lead">
+    Muchas gracias por estar conmigo itzel desde que llegaste a mi vida la has llenado de felicidad como no te imaginas amor cada momento que paso contigo lo haces sentir como si estuviera en el cielo por que te juro que jamas habia conocido una persona que fuera un angelito tan lindo como tu cariño,desde tu manera tan tierna y linda que tienes de amar que haces que todo se sienta tan puro tan pero tan real,no se es inexplicable la manera en la que el sentimiento de queerer estar contigo se hace mayor pero como no podria estar enamorado de ti si cada que sonries se te hacen chiquitos esos ojotes tan lindos y siempre que me miras puedo ver a la persona tan tierna que tienes dentro,como no podria estar enamorado de la persona que tan solo con un abrazo me alegra cada mañana,te amo mucho itzel.
+  </p>
+
+  <button id="btnJuego" class="btnJuego" onclick="/* fallback por si el listener falla */ (function(){document.getElementById('gameArea').style.display='block'; document.getElementById('gameCanvas').focus();})();">🎮 Jugar</button>
+
+  <div id="gameArea">
+    <canvas id="gameCanvas" width="360" height="360" tabindex="0" aria-label="Snake morado"></canvas>
+    <p id="hud" style="margin:.5rem 0 0;opacity:.9">Puntaje: <span id="score">0</span> · Nivel: <span id="level">1</span></p>
+  </div>
+
+  <div id="pregunta">
+    <p style="font-size:20px">¿Quieres salir mañana conmigo?</p>
+    <div class="opciones">
+      <button class="si" id="btnSi">Sí</button>
+      <button class="no" id="btnNo">No</button>
+    </div>
+  </div>
+
+  <div id="mensajeFinal">
+    <p style="font-size:20px">Gracias por querer salir conmigo, te amo</p>
+    <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" alt="Gatito bailando"/>
+  </div>
+
+  <!-- Sonidos -->
+  <audio id="bgm" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_24e0a1f2f2.mp3?filename=lullaby-110624.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sClick" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6f0f7e3a54.mp3?filename=click-124467.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sWin" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_8d1ba0f7b1.mp3?filename=success-1-6297.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sNo" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_3b2a2b0b3a.mp3?filename=error-126627.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sEat" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_3f9b57f0c1.mp3?filename=pop-94319.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // Texto del título (tipografía romántica + typing)
+    const titleText = "HOLAAAAA Itzel, esta es una invitación para invitarte a salir mañana conmigo";
+    const target = document.getElementById('typeTarget');
+    const next = document.getElementById('nextMessage');
+    const btnJuego = document.getElementById('btnJuego');
+    let i = 0;
+    function type(){
+      if(i<titleText.length){
+        target.textContent+=titleText.charAt(i);
+        i++;setTimeout(type,28);
+      } else {
+        next.classList.add('show');
+        btnJuego.style.display='block';
+      }
+    }
+    window.addEventListener('DOMContentLoaded',type);
+
+    // Audio helpers
+    const bgm = document.getElementById('bgm');
+    const sClick = document.getElementById('sClick');
+    const sWin = document.getElementById('sWin');
+    const sNo = document.getElementById('sNo');
+    const sEat = document.getElementById('sEat');
+    function safePlay(a, vol=1){ try{ a.volume = vol; a.currentTime=0; a.play(); }catch(e){} }
+
+    // Juego Snake — morado 💜
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const grid = 20;                 // 20x20 celdas
+    const cell = canvas.width / grid;// tamaño de celda
+    let loopId = null;
+    let speedMs = 180;               // velocidad inicial
+    let dir = {x:1,y:0};             // dirección inicial (derecha)
+    let pendingDir = dir;            // para evitar girar 180° en el mismo tick
+    let snake = [{x:5,y:10},{x:4,y:10},{x:3,y:10}];
+    let food = spawnFood();
+    let score = 0, level = 1, pausedForQuestion = false;
+
+    const scoreEl = document.getElementById('score');
+    const levelEl = document.getElementById('level');
+
+    function drawBoard(){
+      // fondo
+      ctx.fillStyle = '#0e0b16';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      // grid sutil morado
+      ctx.strokeStyle = 'rgba(167,139,250,.07)';
+      for(let i=0;i<=grid;i++){
+        ctx.beginPath(); ctx.moveTo(i*cell,0); ctx.lineTo(i*cell,canvas.height); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0,i*cell); ctx.lineTo(canvas.width,i*cell); ctx.stroke();
+      }
+      // comida (corazón)
+      drawHeart(food.x*cell+cell/2, food.y*cell+cell/2, cell*0.45, '#a78bfa');
+      // serpiente
+      snake.forEach((s,idx)=>{
+        ctx.fillStyle = idx===0 ? '#7c3aed' : '#a78bfa';
+        ctx.fillRect(s.x*cell+2, s.y*cell+2, cell-4, cell-4);
+      });
+    }
+
+    function drawHeart(cx, cy, size, color){
+      ctx.save(); ctx.fillStyle = color; ctx.beginPath();
+      const top = size*0.25;
+      ctx.moveTo(cx, cy+top);
+      ctx.bezierCurveTo(cx+size, cy-top, cx+size, cy+size*0.9, cx, cy+size);
+      ctx.bezierCurveTo(cx-size, cy+size*0.9, cx-size, cy-top, cx, cy+top);
+      ctx.fill(); ctx.restore();
+    }
+
+    function spawnFood(){
+      let p; do{
+        p = {x: Math.floor(Math.random()*grid), y: Math.floor(Math.random()*grid)};
+      } while(snake.some(s=>s.x===p.x && s.y===p.y));
+      return p;
+    }
+
+    function tick(){
+      dir = pendingDir; // aplica el giro seguro
+      const head = {x: (snake[0].x + dir.x + grid)%grid, y: (snake[0].y + dir.y + grid)%grid};
+
+      // colisión con cuerpo
+      if(snake.some((s,idx)=> idx>0 && s.x===head.x && s.y===head.y)){
+        gameOver();
+        return;
+      }
+      snake.unshift(head);
+
+      // come
+      if(head.x===food.x && head.y===food.y){
+        safePlay(sEat, 0.6);
+        score++;
+        scoreEl.textContent = score;
+        // subir nivel cada 5 puntos
+        if(score%5===0){
+          level++;
+          levelEl.textContent = level;
+          speedMs = Math.max(80, speedMs-15);
+          restartLoop();
+        }
+        // Disparar pregunta romántica al llegar a 8 puntos
+        if(score>=8 && !pausedForQuestion){
+          pausedForQuestion = true; clearInterval(loopId); loopId=null;
+          document.getElementById('pregunta').style.display='block';
+        }
+        food = spawnFood();
+      } else {
+        snake.pop();
+      }
+
+      drawBoard();
+    }
+
+    function restartLoop(){ if(loopId){ clearInterval(loopId);} loopId = setInterval(tick, speedMs); }
+
+    function startGame(){
+      // reset
+      dir = {x:1,y:0}; pendingDir = dir; speedMs=180; score=0; level=1; pausedForQuestion=false;
+      scoreEl.textContent=score; levelEl.textContent=level;
+      snake = [{x:5,y:10},{x:4,y:10},{x:3,y:10}];
+      food = spawnFood(); drawBoard(); restartLoop();
+    }
+
+    // Mostrar juego y arrancar música cuando da clic
+    btnJuego.addEventListener('click',()=>{
+      safePlay(sClick, 0.6);
+      document.getElementById('gameArea').style.display='block';
+      canvas.focus();
+      safePlay(bgm, 0.2);
+      startGame();
+    });
+
+    // Controles
+    document.addEventListener('keydown',e=>{
+      if(document.getElementById('gameArea').style.display!=='block') return;
+      const k = e.key.toLowerCase();
+      const horizontal = (pendingDir.x!==0);
+      const vertical = (pendingDir.y!==0);
+      if(['arrowup','w'].includes(k) && !vertical){ pendingDir={x:0,y:-1}; e.preventDefault(); }
+      if(['arrowdown','s'].includes(k) && !vertical){ pendingDir={x:0,y:1}; e.preventDefault(); }
+      if(['arrowleft','a'].includes(k) && !horizontal){ pendingDir={x:-1,y:0}; e.preventDefault(); }
+      if(['arrowright','d'].includes(k) && !horizontal){ pendingDir={x:1,y:0}; e.preventDefault(); }
+    });
+
+    function gameOver(){
+      safePlay(sNo, 0.7);
+      clearInterval(loopId); loopId=null;
+      // Reinicio suave
+      setTimeout(()=>{ startGame(); }, 900);
+    }
+
+    // Pregunta sí/no
+    document.getElementById('btnSi').addEventListener('click',()=>{
+      safePlay(sClick, 0.6);
+      document.getElementById('pregunta').style.display='none';
+      document.getElementById('mensajeFinal').style.display='block';
+      // detener juego y música suave
+      if(loopId){ clearInterval(loopId); loopId=null; }
+    });
+    document.getElementById('btnNo').addEventListener('click',()=>{
+      safePlay(sNo, 0.7);
+      document.getElementById('pregunta').style.display='none';
+      if(!loopId){ restartLoop(); } // reanudar
+      pausedForQuestion=false;
+      canvas.focus();
+    });
+  </script>
+</body>
+</html>
